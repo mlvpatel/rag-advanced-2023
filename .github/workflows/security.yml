@@ -1,0 +1,43 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '30 2 * * *' # Run nightly
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-audit
+          pip install -r requirements.txt
+
+      - name: Python Dependency Scan (pip-audit)
+        run: |
+          pip-audit --ignore-vuln PYSEC-2022-42969
+
+      - name: Build Docker Image
+        run: docker build -t ragflow:${{ github.sha }} -f docker/Dockerfile .
+
+      - name: Container Vulnerability Scan (Trivy)
+        uses: aquasecurity/trivy-action@v0.30.0
+        with:
+          image-ref: 'ragflow:${{ github.sha }}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'

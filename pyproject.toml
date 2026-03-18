@@ -1,0 +1,105 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ragflow"
+version = "1.1.0"
+description = "Production-Grade RAG System with Conversational Memory and Gemini Embedding 2"
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Malav Patel", email = "malav.patel203@gmail.com"}
+]
+keywords = [
+    "rag", "retrieval-augmented-generation", "langchain", "chatbot",
+    "vector-database", "chromadb", "gemini", "conversational-ai",
+    "google-ai", "fastapi"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "langchain>=0.3.0",
+    "langchain-core>=0.3.0",
+    "langchain-openai>=0.2.0",
+    "langchain-chroma>=0.2.0",
+    "langchain-google-genai>=2.0.0",
+    "google-generativeai>=0.8.0",
+    "chromadb>=0.6.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "pypdf>=4.0.0",
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.10.0",
+    "structlog>=24.4.0",
+    "slowapi>=0.1.9",
+    "bleach>=6.2.0",
+    "tenacity>=9.0.0",
+    "prometheus-fastapi-instrumentator>=7.0.0",
+    "celery[redis]>=5.4.0",
+    "redis>=5.2.0",
+    "rank_bm25>=0.2.2",
+    "sentence-transformers>=3.0.0",
+]
+
+[project.optional-dependencies]
+frontend = ["streamlit>=1.40.0"]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=5.0.0",
+    "pytest-mock>=3.14.0",
+    "httpx>=0.28.0",
+    "black>=24.4.0",
+    "flake8>=7.1.0",
+    "isort>=5.13.0",
+    "pip-audit>=2.7.0",
+]
+all = [
+    "streamlit>=1.40.0",
+    "sentence-transformers>=3.0.0",
+    "langchain-anthropic>=0.3.0",
+    "langchain-ollama>=0.2.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/mlvpatel/RAGFlow"
+Repository = "https://github.com/mlvpatel/RAGFlow"
+Issues = "https://github.com/mlvpatel/RAGFlow/issues"
+
+[tool.black]
+line-length = 100
+target-version = ['py310', 'py311', 'py312']
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "--cov=src --cov-fail-under=70 --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "src/*/__pycache__/*",
+    "src/*/tests/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+]

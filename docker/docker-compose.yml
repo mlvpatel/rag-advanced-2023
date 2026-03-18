@@ -1,0 +1,170 @@
+# RAGFlow Docker Compose
+# Author: Malav Patel
+# Run: docker compose -f docker/docker-compose.yml up --build -d
+
+services:
+  # ============================================
+  # API Service
+  # ============================================
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: ragflow:latest
+    container_name: ragflow-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../data:/app/data
+      - ../logs:/app/logs
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - LANGSMITH_API_KEY=${LANGSMITH_API_KEY:-}
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - API_KEY=${API_KEY}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:8501}
+      - LOG_LEVEL=INFO
+    depends_on:
+      redis:
+        condition: service_healthy
+      chromadb:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 2G
+    networks:
+      - ragflow-network
+
+  # ============================================
+  # Streamlit UI
+  # ============================================
+  streamlit:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: ragflow:latest
+    container_name: ragflow-streamlit
+    restart: unless-stopped
+    command: ["streamlit", "run", "frontend/streamlit_app.py", "--server.port", "8501", "--server.address", "0.0.0.0"]
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://api:8000
+      - API_KEY=${API_KEY}
+    depends_on:
+      api:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+    networks:
+      - ragflow-network
+
+  # ============================================
+  # Redis (for caching)
+  # ============================================
+  redis:
+    image: redis:7.4-alpine
+    container_name: ragflow-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+    networks:
+      - ragflow-network
+
+  # ============================================
+  # ChromaDB (Vector Store)
+  # ============================================
+  chromadb:
+    image: chromadb/chroma:0.6.3
+    container_name: ragflow-chroma
+    restart: unless-stopped
+    volumes:
+      - chroma-data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+    ports:
+      - "8001:8000"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+    networks:
+      - ragflow-network
+
+  # ============================================
+  # Celery Worker
+  # ============================================
+  worker:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: ragflow:latest
+    container_name: ragflow-worker
+    restart: unless-stopped
+    command: celery -A src.worker.celery_app worker --loglevel=info --concurrency=2
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+    depends_on:
+      redis:
+        condition: service_healthy
+      chromadb:
+        condition: service_started
+    volumes:
+      - ../data:/app/data
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 2G
+    networks:
+      - ragflow-network
+
+networks:
+  ragflow-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+  chroma-data:

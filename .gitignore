@@ -1,0 +1,50 @@
+# Byte-compiled / optimised
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data — never commit live DBs or uploaded files
+rag_app.db
+chroma_db/
+data/chroma_db/
+data/uploads/
+temp_uploads/
+!data/sample_docs/
+
+# Logs
+*.log
+logs/
+
+# Testing & coverage
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+
+# Build
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.dockerignore

@@ -1,11 +1,11 @@
-# Contributing to RAGFlow
+# Contributing to RagFlow
 
-Thank you for your interest in contributing to RAGFlow! 🎉
+Thank you for your interest in contributing to RagFlow! 🎉
 
 ## How to Contribute
 
-1. **Fork** the repository at [github.com/mlvpatel/RAGFlow](https://github.com/mlvpatel/RAGFlow)
-2. **Clone** your fork: `git clone https://github.com/<your-username>/RAGFlow.git`
+1. **Fork** the repository at [github.com/mlvpatel/RagFlow](https://github.com/mlvpatel/RagFlow)
+2. **Clone** your fork: `git clone https://github.com/<your-username>/RagFlow.git`
 3. Create a **feature branch**: `git checkout -b feature/amazing-feature`
 4. **Commit** your changes: `git commit -m 'feat: add amazing feature'`
 5. **Push** to your branch: `git push origin feature/amazing-feature`

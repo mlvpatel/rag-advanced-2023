@@ -1,4 +1,4 @@
-<br># RAGFlow
+<br># RagFlow
 
 > **Production-Grade Retrieval-Augmented Generation System with Conversational Memory**
 
@@ -11,7 +11,7 @@
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF.svg)](.github/workflows/)
 [![Coverage](https://img.shields.io/badge/coverage-70%25%2B-brightgreen.svg)](pyproject.toml)
 
-RAGFlow is a **100/100 production-ready** Retrieval-Augmented Generation (RAG) system. Ask questions about your documents and receive accurate, context-aware answers powered by **Gemini Embedding 2** (`text-embedding-004`) and your choice of LLM — GPT-4o, Claude 3.7, DeepSeek, or local Llama via Ollama.
+RagFlow is a **100/100 production-ready** Retrieval-Augmented Generation (RAG) system. Ask questions about your documents and receive accurate, context-aware answers powered by **Gemini Embedding 2** (`text-embedding-004`) and your choice of LLM — GPT-4o, Claude 3.7, DeepSeek, or local Llama via Ollama.
 
 ---
 
@@ -226,8 +226,8 @@ flowchart LR
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/mlvpatel/RAGFlow.git
-cd RAGFlow
+git clone https://github.com/mlvpatel/RagFlow.git
+cd RagFlow
 
 # 2. Set up environment
 cp .env.example .env
@@ -251,8 +251,8 @@ open http://localhost:8501
 
 ```bash
 # 1. Clone & install
-git clone https://github.com/mlvpatel/RAGFlow.git
-cd RAGFlow
+git clone https://github.com/mlvpatel/RagFlow.git
+cd RagFlow
 make install          # pip install -r requirements.txt
 
 # 2. Configure environment
@@ -373,7 +373,7 @@ make clean            # Remove caches and build artifacts
 ### Project Structure
 
 ```
-RAGFlow/
+RagFlow/
 ├── src/
 │   ├── api/
 │   │   ├── main.py              # FastAPI app, routes (/v1/*), middleware
@@ -486,7 +486,7 @@ This project is licensed under the **MIT License** — see [LICENSE](LICENSE) fo
 **Malav Patel**  
 📧 malav.patel203@gmail.com  
 🐙 GitHub: [@mlvpatel](https://github.com/mlvpatel)  
-🔗 Repository: [github.com/mlvpatel/RAGFlow](https://github.com/mlvpatel/RAGFlow)
+🔗 Repository: [github.com/mlvpatel/RagFlow](https://github.com/mlvpatel/RagFlow)
 
 ---
 

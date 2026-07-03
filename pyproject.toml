@@ -73,9 +73,9 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/mlvpatel/RAGFlow"
-Repository = "https://github.com/mlvpatel/RAGFlow"
-Issues = "https://github.com/mlvpatel/RAGFlow/issues"
+Homepage = "https://github.com/mlvpatel/RagFlow"
+Repository = "https://github.com/mlvpatel/RagFlow"
+Issues = "https://github.com/mlvpatel/RagFlow/issues"
 
 [tool.black]
 line-length = 100

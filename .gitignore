@@ -18,7 +18,7 @@ env/
 *.swp
 *.swo
 
-# Data — never commit live DBs or uploaded files
+# Data, never commit live DBs or uploaded files
 rag_app.db
 chroma_db/
 data/chroma_db/
@@ -48,3 +48,20 @@ Thumbs.db
 
 # Docker
 *.dockerignore
+
+# Agent and LLM artifacts, never push
+CLAUDE.md
+CLAUDE.local.md
+AGENTS.md
+mcp.json
+.claude/
+rules/
+commands/
+skills/
+agents/
+hooks/
+memory/
+workflows/
+graphify-out/
+.graphify_*
+.playwright-mcp/

@@ -4,9 +4,11 @@ Uses TestClient (in-process, no server needed) with mocked dependencies.
 
 Author: Malav Patel
 """
+
+from unittest.mock import MagicMock, patch
+
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import MagicMock, patch
 
 # ── test setup helpers ──────────────────────────────────────────────────────
 
@@ -22,15 +24,18 @@ def make_app():
     db_mod.create_application_logs = MagicMock()
     db_mod.create_document_store = MagicMock()
 
-    with patch("src.api.main.get_rag_chain"), \
-         patch("src.api.main.get_chat_history", return_value=[]), \
-         patch("src.api.main.insert_application_logs"), \
-         patch("src.api.main.get_all_documents", return_value=[]), \
-         patch("src.api.main.process_document") as mock_task, \
-         patch("src.api.main.delete_doc_from_chroma", return_value=True), \
-         patch("src.api.main.delete_document_record", return_value=True):
+    with (
+        patch("src.api.main.get_rag_chain"),
+        patch("src.api.main.get_chat_history", return_value=[]),
+        patch("src.api.main.insert_application_logs"),
+        patch("src.api.main.get_all_documents", return_value=[]),
+        patch("src.api.main.process_document") as mock_task,
+        patch("src.api.main.delete_doc_from_chroma", return_value=True),
+        patch("src.api.main.delete_document_record", return_value=True),
+    ):
 
         from src.api.main import app
+
         return app, mock_task
 
 
@@ -40,13 +45,16 @@ def make_app():
 @pytest.fixture()
 def client():
     """Return a fresh TestClient for each test."""
-    with patch("src.api.db_utils.create_application_logs"), \
-         patch("src.api.db_utils.create_document_store"), \
-         patch("src.embeddings.chroma_utils.vectorstore"), \
-         patch("src.embeddings.chroma_utils.query_embedding_function"), \
-         patch("src.core.langchain_utils._base_retriever"), \
-         patch("src.core.langchain_utils._get_cross_encoder"):
+    with (
+        patch("src.api.db_utils.create_application_logs"),
+        patch("src.api.db_utils.create_document_store"),
+        patch("src.embeddings.chroma_utils.vectorstore"),
+        patch("src.embeddings.chroma_utils.query_embedding_function"),
+        patch("src.core.langchain_utils._base_retriever"),
+        patch("src.core.langchain_utils._get_cross_encoder"),
+    ):
         from src.api.main import app
+
         yield TestClient(app)
 
 
@@ -119,6 +127,7 @@ class TestUploadDoc:
         mock_task.delay.return_value = fake_result
 
         import io
+
         resp = client.post(
             "/v1/upload-doc",
             files={"file": ("report.pdf", io.BytesIO(b"%PDF-1.4 content"), "application/pdf")},
@@ -130,9 +139,10 @@ class TestUploadDoc:
 
 
 class TestListDocs:
-    @patch("src.api.main.get_all_documents", return_value=[
-        {"id": 1, "filename": "doc.pdf", "upload_timestamp": "2026-01-01T00:00:00"}
-    ])
+    @patch(
+        "src.api.main.get_all_documents",
+        return_value=[{"id": 1, "filename": "doc.pdf", "upload_timestamp": "2026-01-01T00:00:00"}],
+    )
     def test_list_docs_returns_documents(self, mock_docs, client):
         resp = client.get("/v1/list-docs")
         assert resp.status_code == 200

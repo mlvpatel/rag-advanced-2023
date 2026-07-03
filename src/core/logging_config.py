@@ -1,6 +1,8 @@
-import structlog
 import logging
 import sys
+
+import structlog
+
 
 def configure_logging():
     """
@@ -13,9 +15,7 @@ def configure_logging():
     ]
 
     structlog.configure(
-        processors=shared_processors + [
-            structlog.processors.JSONRenderer()
-        ],
+        processors=shared_processors + [structlog.processors.JSONRenderer()],
         logger_factory=structlog.PrintLoggerFactory(),
         cache_logger_on_first_use=True,
     )
@@ -31,6 +31,7 @@ def configure_logging():
     def redirect_logging(logger_name, level, event_dict):
         event_dict["logger"] = logger_name
         return event_dict
+
 
 configure_logging()
 logger = structlog.get_logger()

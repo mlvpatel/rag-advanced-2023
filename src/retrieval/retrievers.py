@@ -2,12 +2,14 @@
 Retrieval components: VectorRetriever (with optional BM25), ReRankingRetriever, RRF fusion.
 Author: Malav Patel
 """
-from typing import List, Any, Optional
-from langchain_core.retrievers import BaseRetriever
+
+import logging
+from typing import Any, List, Optional
+
 from langchain_core.callbacks import CallbackManagerForRetrieverRun
 from langchain_core.documents import Document
+from langchain_core.retrievers import BaseRetriever
 from pydantic import ConfigDict
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -31,14 +33,14 @@ def reciprocal_rank_fusion(
             fused_scores[key] = fused_scores.get(key, 0.0) + 1.0 / (k + rank + 1)
 
     return [
-        doc_map[key]
-        for key, _ in sorted(fused_scores.items(), key=lambda x: x[1], reverse=True)
+        doc_map[key] for key, _ in sorted(fused_scores.items(), key=lambda x: x[1], reverse=True)
     ]
 
 
 def _build_bm25_index(documents: List[Document]):
     """Build a BM25Okapi index from a list of documents."""
     from rank_bm25 import BM25Okapi
+
     tokenised = [doc.page_content.lower().split() for doc in documents]
     return BM25Okapi(tokenised)
 
@@ -52,6 +54,7 @@ class VectorRetriever(BaseRetriever):
     a BM25 index is built on-the-fly and both result lists are merged via RRF.
     For large-scale BM25, replace with Elasticsearch/OpenSearch.
     """
+
     vectorstore: Any
     k: int = 5
 
@@ -85,7 +88,9 @@ class VectorRetriever(BaseRetriever):
 
                 if bm25_docs:
                     fused = reciprocal_rank_fusion([vector_docs, bm25_docs])
-                    logger.debug(f"Hybrid RRF: {len(vector_docs)} vector + {len(bm25_docs)} BM25 → {len(fused)} fused")
+                    logger.debug(
+                        f"Hybrid RRF: {len(vector_docs)} vector + {len(bm25_docs)} BM25 → {len(fused)} fused"
+                    )
                     return fused[: self.k]
         except Exception as e:
             logger.warning(f"BM25 retrieval skipped (falling back to vector-only): {e}")
@@ -100,6 +105,7 @@ class ReRankingRetriever(BaseRetriever):
     Stage 1: Retrieve `top_n * 2` candidates via base_retriever (high recall).
     Stage 2: Score each (query, doc) pair with a Cross-Encoder; return top_n.
     """
+
     base_retriever: BaseRetriever
     cross_encoder_model: Optional[Any] = None
     top_n: int = 5

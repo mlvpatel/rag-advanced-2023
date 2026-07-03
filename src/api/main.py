@@ -6,32 +6,36 @@ Email: malav.patel203@gmail.com
 """
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
-import os
-import uuid
-import shutil
 import logging
+import os
+import shutil
+import uuid
 
 import structlog
-from fastapi import FastAPI, APIRouter, File, UploadFile, HTTPException, Request, Depends
+from celery.result import AsyncResult
+from fastapi import APIRouter, Depends, FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_fastapi_instrumentator import Instrumentator
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from celery.result import AsyncResult
-from prometheus_fastapi_instrumentator import Instrumentator
 
-from src.core.security import limiter, verify_api_key
-from src.core.logging_config import configure_logging, logger
-from src.api.pydantic_models import QueryInput, QueryResponse, DocumentInfo, DeleteFileRequest
-from src.core.langchain_utils import get_rag_chain
 from src.api.db_utils import (
-    insert_application_logs, get_chat_history,
-    get_all_documents, insert_document_record, delete_document_record,
+    delete_document_record,
+    get_all_documents,
+    get_chat_history,
+    insert_application_logs,
+    insert_document_record,
 )
-from src.embeddings.chroma_utils import index_document_to_chroma, delete_doc_from_chroma
-from src.worker.tasks import process_document
+from src.api.pydantic_models import DeleteFileRequest, DocumentInfo, QueryInput, QueryResponse
+from src.core.langchain_utils import get_rag_chain
+from src.core.logging_config import configure_logging, logger
+from src.core.security import limiter, verify_api_key
+from src.embeddings.chroma_utils import delete_doc_from_chroma, index_document_to_chroma
 from src.worker.celery_app import celery_app
+from src.worker.tasks import process_document
 
 configure_logging()
 
@@ -72,6 +76,7 @@ Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     import time
+
     trace_id = str(uuid.uuid4())
     structlog.contextvars.bind_contextvars(trace_id=trace_id)
     start = time.time()
@@ -93,13 +98,14 @@ async def log_requests(request: Request, call_next):
 def health_check():
     """Deep liveness probe — checks Chroma and Redis connectivity."""
     import redis as redis_lib
+
     from src.embeddings.chroma_utils import vectorstore
 
     checks: dict[str, str] = {}
 
     # ── Chroma ────────────────────────────────────────────────────────────
     try:
-        vectorstore.get(limit=1)   # lightweight probe
+        vectorstore.get(limit=1)  # lightweight probe
         checks["chroma"] = "ok"
     except Exception as e:
         checks["chroma"] = f"error: {e}"
@@ -132,10 +138,12 @@ def chat(request: Request, query_input: QueryInput):
 
     chat_history = get_chat_history(session_id)
     rag_chain = get_rag_chain(query_input.model.value)
-    answer = rag_chain.invoke({
-        "input": query_input.question,
-        "chat_history": chat_history,
-    })["answer"]
+    answer = rag_chain.invoke(
+        {
+            "input": query_input.question,
+            "chat_history": chat_history,
+        }
+    )["answer"]
 
     insert_application_logs(session_id, query_input.question, answer, query_input.model.value)
     logger.info("chat_response", session_id=session_id, answer_length=len(answer))
@@ -199,7 +207,9 @@ def delete_document(request: DeleteFileRequest):
     """Delete a document from both ChromaDB and the metadata database."""
     chroma_ok = delete_doc_from_chroma(request.file_id)
     if not chroma_ok:
-        raise HTTPException(status_code=500, detail=f"Failed to delete vectors for file_id {request.file_id}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to delete vectors for file_id {request.file_id}"
+        )
 
     db_ok = delete_document_record(request.file_id)
     if not db_ok:
@@ -217,4 +227,5 @@ app.include_router(v1)
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run("src.api.main:app", host="0.0.0.0", port=8000, reload=True)

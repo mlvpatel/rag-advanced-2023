@@ -2,10 +2,13 @@
 Chat interface component.
 Author: Malav Patel
 """
+
 from dotenv import load_dotenv
+
 load_dotenv()
 
 import streamlit as st
+
 from frontend.api_utils import get_api_response
 
 

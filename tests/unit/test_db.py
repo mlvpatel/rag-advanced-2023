@@ -4,10 +4,11 @@ Tests run fully isolated with no real rag_app.db touched.
 
 Author: Malav Patel
 """
-import pytest
-import sqlite3
-from unittest.mock import patch, MagicMock
 
+import sqlite3
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -18,7 +19,7 @@ def make_in_memory_db():
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL;")
     conn.execute("PRAGMA foreign_keys=ON;")
-    conn.execute('''
+    conn.execute("""
         CREATE TABLE IF NOT EXISTS application_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             session_id TEXT NOT NULL,
@@ -27,14 +28,14 @@ def make_in_memory_db():
             model TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-    ''')
-    conn.execute('''
+    """)
+    conn.execute("""
         CREATE TABLE IF NOT EXISTS document_store (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             filename TEXT NOT NULL,
             upload_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-    ''')
+    """)
     conn.commit()
     return conn
 
@@ -54,11 +55,15 @@ def db_utils(db_conn):
     create_application_logs / create_document_store are also patched
     so they don't try to use the real file.
     """
-    with patch("src.api.db_utils.get_db_connection", return_value=db_conn), \
-         patch("src.api.db_utils.create_application_logs"), \
-         patch("src.api.db_utils.create_document_store"):
+    with (
+        patch("src.api.db_utils.get_db_connection", return_value=db_conn),
+        patch("src.api.db_utils.create_application_logs"),
+        patch("src.api.db_utils.create_document_store"),
+    ):
         import importlib
+
         import src.api.db_utils as mod
+
         importlib.reload(mod)
         yield mod, db_conn
 

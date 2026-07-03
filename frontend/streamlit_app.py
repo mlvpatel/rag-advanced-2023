@@ -2,12 +2,15 @@
 RAGFlow Streamlit App entry point.
 Author: Malav Patel
 """
+
 from dotenv import load_dotenv
+
 load_dotenv()
 
 import streamlit as st
-from frontend.sidebar import display_sidebar
+
 from frontend.chat_interface import display_chat_interface
+from frontend.sidebar import display_sidebar
 
 st.set_page_config(
     page_title="RAGFlow — AI Document Chat",

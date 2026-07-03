@@ -1,0 +1,7 @@
+[flake8]
+max-line-length = 120
+# E203 and W503 conflict with black. E402 is expected because several modules
+# call load_dotenv() or adjust sys.path before importing. F401 is tolerated in
+# this baseline.
+extend-ignore = E203, W503, E402, F401
+exclude = .venv, venv, .git, graphify-out, __pycache__, build, dist

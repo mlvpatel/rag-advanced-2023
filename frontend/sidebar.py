@@ -2,11 +2,14 @@
 Sidebar component — document management panel.
 Author: Malav Patel
 """
+
 from dotenv import load_dotenv
+
 load_dotenv()
 
 import streamlit as st
-from frontend.api_utils import upload_document, list_documents, delete_document, get_task_status
+
+from frontend.api_utils import delete_document, get_task_status, list_documents, upload_document
 
 
 def display_sidebar():
@@ -58,9 +61,7 @@ def display_sidebar():
         selected_id = st.sidebar.selectbox(
             "Select document to delete",
             options=[doc["id"] for doc in docs],
-            format_func=lambda fid: next(
-                (d["filename"] for d in docs if d["id"] == fid), str(fid)
-            ),
+            format_func=lambda fid: next((d["filename"] for d in docs if d["id"] == fid), str(fid)),
         )
         if st.sidebar.button("🗑️ Delete Selected", type="secondary"):
             with st.spinner("Deleting…"):

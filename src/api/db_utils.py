@@ -2,11 +2,13 @@
 Database utilities for RAGFlow — SQLite with WAL mode.
 Author: Malav Patel
 """
+
 from dotenv import load_dotenv
+
 load_dotenv()
 
-import sqlite3
 import logging
+import sqlite3
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -31,7 +33,7 @@ def get_db_connection() -> sqlite3.Connection:
 
 def create_application_logs():
     with get_db_connection() as conn:
-        conn.execute('''
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS application_logs (
                 id         INTEGER PRIMARY KEY AUTOINCREMENT,
                 session_id TEXT    NOT NULL,
@@ -40,60 +42,58 @@ def create_application_logs():
                 model      TEXT    NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        ''')
-        conn.execute(
-            "CREATE INDEX IF NOT EXISTS idx_logs_session ON application_logs(session_id);"
-        )
+        """)
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_logs_session ON application_logs(session_id);")
 
 
 def create_document_store():
     with get_db_connection() as conn:
-        conn.execute('''
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS document_store (
                 id               INTEGER PRIMARY KEY AUTOINCREMENT,
                 filename         TEXT      NOT NULL,
                 upload_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        ''')
+        """)
 
 
 def insert_application_logs(session_id: str, user_query: str, gpt_response: str, model: str):
     with get_db_connection() as conn:
         conn.execute(
-            'INSERT INTO application_logs (session_id, user_query, gpt_response, model) VALUES (?, ?, ?, ?)',
-            (session_id, user_query, gpt_response, model)
+            "INSERT INTO application_logs (session_id, user_query, gpt_response, model) VALUES (?, ?, ?, ?)",
+            (session_id, user_query, gpt_response, model),
         )
 
 
 def get_chat_history(session_id: str) -> list:
     with get_db_connection() as conn:
         cursor = conn.execute(
-            'SELECT user_query, gpt_response FROM application_logs '
-            'WHERE session_id = ? ORDER BY created_at',
-            (session_id,)
+            "SELECT user_query, gpt_response FROM application_logs "
+            "WHERE session_id = ? ORDER BY created_at",
+            (session_id,),
         )
         messages = []
         for row in cursor.fetchall():
-            messages.extend([
-                {"role": "human", "content": row["user_query"]},
-                {"role": "ai",    "content": row["gpt_response"]},
-            ])
+            messages.extend(
+                [
+                    {"role": "human", "content": row["user_query"]},
+                    {"role": "ai", "content": row["gpt_response"]},
+                ]
+            )
     return messages
 
 
 def insert_document_record(filename: str) -> int:
     """Insert a document record and return the new integer file_id."""
     with get_db_connection() as conn:
-        cursor = conn.execute(
-            'INSERT INTO document_store (filename) VALUES (?)', (filename,)
-        )
+        cursor = conn.execute("INSERT INTO document_store (filename) VALUES (?)", (filename,))
         return cursor.lastrowid
 
 
 def delete_document_record(file_id: int) -> bool:
     try:
         with get_db_connection() as conn:
-            conn.execute('DELETE FROM document_store WHERE id = ?', (file_id,))
+            conn.execute("DELETE FROM document_store WHERE id = ?", (file_id,))
         return True
     except Exception as e:
         logger.error(f"Failed to delete document record {file_id}: {e}")
@@ -103,7 +103,7 @@ def delete_document_record(file_id: int) -> bool:
 def get_all_documents() -> list:
     with get_db_connection() as conn:
         cursor = conn.execute(
-            'SELECT id, filename, upload_timestamp FROM document_store ORDER BY upload_timestamp DESC'
+            "SELECT id, filename, upload_timestamp FROM document_store ORDER BY upload_timestamp DESC"
         )
         return [dict(row) for row in cursor.fetchall()]
 

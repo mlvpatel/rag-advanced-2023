@@ -2,7 +2,9 @@
 Document chunking strategies.
 Author: Malav Patel
 """
+
 from typing import List, Optional
+
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 

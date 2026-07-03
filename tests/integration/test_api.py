@@ -5,21 +5,26 @@ These tests import the real app but mock all external services
 
 Author: Malav Patel
 """
+
+from unittest.mock import MagicMock, patch
+
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import MagicMock, patch
 
 
 @pytest.fixture(scope="module")
 def client():
     """Module-scoped client — patches applied for all tests in this file."""
-    with patch("src.api.db_utils.create_application_logs"), \
-         patch("src.api.db_utils.create_document_store"), \
-         patch("src.embeddings.chroma_utils.GoogleGenerativeAIEmbeddings"), \
-         patch("src.embeddings.chroma_utils.Chroma"), \
-         patch("src.core.langchain_utils._base_retriever"), \
-         patch("src.core.langchain_utils._get_cross_encoder"):
+    with (
+        patch("src.api.db_utils.create_application_logs"),
+        patch("src.api.db_utils.create_document_store"),
+        patch("src.embeddings.chroma_utils.GoogleGenerativeAIEmbeddings"),
+        patch("src.embeddings.chroma_utils.Chroma"),
+        patch("src.core.langchain_utils._base_retriever"),
+        patch("src.core.langchain_utils._get_cross_encoder"),
+    ):
         from src.api.main import app
+
         yield TestClient(app)
 
 

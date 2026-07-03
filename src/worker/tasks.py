@@ -1,10 +1,13 @@
-from .celery_app import celery_app
-from src.embeddings.chroma_utils import index_document_to_chroma
-from src.api.db_utils import insert_document_record
-import os
 import logging
+import os
+
+from src.api.db_utils import insert_document_record
+from src.embeddings.chroma_utils import index_document_to_chroma
+
+from .celery_app import celery_app
 
 logger = logging.getLogger(__name__)
+
 
 @celery_app.task(bind=True, max_retries=3, default_retry_delay=10)
 def process_document(self, file_path: str, filename: str):

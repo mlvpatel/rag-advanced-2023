@@ -1,8 +1,10 @@
+from unittest.mock import MagicMock
+
 import pytest
+from langchain_core.documents import Document
+
 from src.retrieval.chunking import SmartChunker
 from src.retrieval.retrievers import VectorRetriever, reciprocal_rank_fusion
-from langchain_core.documents import Document
-from unittest.mock import MagicMock
 
 
 def test_smart_chunker_fallback():
@@ -35,4 +37,3 @@ def test_vector_retriever(mock_chroma):
     assert len(results) == 2
     assert results[0].page_content == "Test doc 1"
     mock_chroma.similarity_search.assert_called_once_with("test query", k=2)
-

@@ -2,21 +2,22 @@
 Embedding utilities — ChromaDB + Google Gemini Embedding 2 (text-embedding-004).
 Author: Malav Patel
 """
+
 from dotenv import load_dotenv
+
 load_dotenv()
 
-import os
-import logging
 import datetime
+import logging
+import os
 from typing import List
 
-from tenacity import retry, stop_after_attempt, wait_exponential, before_sleep_log
-
-from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, UnstructuredHTMLLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_chroma import Chroma
+from langchain_community.document_loaders import Docx2txtLoader, PyPDFLoader, UnstructuredHTMLLoader
 from langchain_core.documents import Document
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from tenacity import before_sleep_log, retry, stop_after_attempt, wait_exponential
 
 logger = logging.getLogger(__name__)
 
@@ -41,14 +42,14 @@ if not _google_api_key:
 embedding_function = GoogleGenerativeAIEmbeddings(
     model="models/text-embedding-004",
     google_api_key=_google_api_key,
-    task_type="retrieval_document",   # best for indexing documents
+    task_type="retrieval_document",  # best for indexing documents
 )
 
 # Query-time embedding (different task type for better retrieval accuracy)
 query_embedding_function = GoogleGenerativeAIEmbeddings(
     model="models/text-embedding-004",
     google_api_key=_google_api_key,
-    task_type="retrieval_query",      # best for embedding user queries
+    task_type="retrieval_query",  # best for embedding user queries
 )
 
 # ============================================
@@ -59,6 +60,7 @@ chroma_port = os.getenv("CHROMA_PORT", "8000")
 
 if chroma_host:
     import chromadb
+
     client = chromadb.HttpClient(host=chroma_host, port=int(chroma_port))
     vectorstore = Chroma(
         client=client,
@@ -88,6 +90,7 @@ def load_and_split_document(file_path: str) -> List[Document]:
         loader = UnstructuredHTMLLoader(file_path)
     elif file_path.endswith((".txt", ".md")):
         from langchain_community.document_loaders import TextLoader
+
         loader = TextLoader(file_path, encoding="utf-8")
     else:
         raise ValueError(f"Unsupported file type: {file_path}")
@@ -114,7 +117,9 @@ def index_document_to_chroma(file_path: str, file_id: int) -> bool:
             split.metadata["indexed_at"] = timestamp
 
         vectorstore.add_documents(splits)
-        logger.info(f"Indexed {len(splits)} chunks for file_id={file_id} ({os.path.basename(file_path)})")
+        logger.info(
+            f"Indexed {len(splits)} chunks for file_id={file_id} ({os.path.basename(file_path)})"
+        )
         return True
     except Exception as e:
         logger.error(f"Error indexing document {file_path}: {e}")
@@ -129,7 +134,7 @@ def delete_doc_from_chroma(file_id: int) -> bool:
         logger.info(f"Found {len(ids_to_delete)} chunks for file_id {file_id}")
 
         if ids_to_delete:
-            vectorstore.delete(ids=ids_to_delete)     # ✅ stable public API
+            vectorstore.delete(ids=ids_to_delete)  # ✅ stable public API
             logger.info(f"Deleted {len(ids_to_delete)} chunks for file_id {file_id}")
 
         return True

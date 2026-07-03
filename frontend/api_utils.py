@@ -2,10 +2,13 @@
 Frontend API utilities — all calls go through the v1 router.
 Author: Malav Patel
 """
+
 from dotenv import load_dotenv
+
 load_dotenv()
 
 import os
+
 import requests
 import streamlit as st
 

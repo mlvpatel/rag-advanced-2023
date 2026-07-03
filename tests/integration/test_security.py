@@ -3,6 +3,7 @@ Integration security tests — input sanitization and rate limiting.
 Updated to use /v1/ route prefix.
 Author: Malav Patel
 """
+
 import sys
 from unittest.mock import MagicMock, patch
 
@@ -21,8 +22,10 @@ import pytest
 from fastapi.testclient import TestClient
 
 # Import after stubs are registered
-with patch("src.api.db_utils.create_application_logs"), \
-     patch("src.api.db_utils.create_document_store"):
+with (
+    patch("src.api.db_utils.create_application_logs"),
+    patch("src.api.db_utils.create_document_store"),
+):
     from src.api.main import app
 
 client = TestClient(app, raise_server_exceptions=False)

@@ -108,7 +108,7 @@ The next rung up, [RagFlowPro](https://github.com/mlvpatel/RagFlowPro), replaces
 
 ## License
 
-Released under the MIT License. See [LICENSE](LICENSE). MIT is chosen because it is the simplest and most permissive common license, so anyone, including a client evaluating the work, can read, run, modify, and reuse the code with no friction.
+Released under the MIT License. See [LICENSE](LICENSE). MIT is the simplest and most permissive of the common licenses, so anyone can read, run, modify, and reuse the code freely.
 
 ## Author
 

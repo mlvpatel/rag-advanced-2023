@@ -1,10 +1,12 @@
-# RagFlow
+# RagFlowPlus
 
-**A retrieval augmented generation chatbot for question answering over your own documents.**
+**Advanced retrieval augmented generation for question answering over your own documents, with hybrid retrieval and cross encoder reranking.**
 
-RagFlow lets you upload documents and ask questions about them. It retrieves the relevant passages, sends them to a language model as context, and returns a grounded answer while remembering the conversation. It runs on FastAPI with a Streamlit chat interface and packages the whole stack with Docker.
+**Part of the RagFlow line, enterprise RAG built year by year. This repository is RagFlowPlus, Advanced RAG, 2023.** See [the full line](#the-ragflow-line) below.
 
-[![CI](https://github.com/mlvpatel/RagFlow/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/mlvpatel/RagFlow/actions/workflows/ci-cd.yml) ![Python](https://img.shields.io/badge/python-3.11-blue) ![FastAPI](https://img.shields.io/badge/FastAPI-async-green) ![License](https://img.shields.io/badge/license-MIT-green)
+RagFlowPlus lets you upload documents and ask questions about them. It retrieves the relevant passages with hybrid dense and keyword search, reranks them with a cross encoder, sends the best context to a language model, and returns a grounded answer while remembering the conversation. It runs on FastAPI with a Streamlit chat interface and packages the whole stack with Docker.
+
+[![CI](https://github.com/mlvpatel/RagFlowPlus/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/mlvpatel/RagFlowPlus/actions/workflows/ci-cd.yml) ![Python](https://img.shields.io/badge/python-3.11-blue) ![FastAPI](https://img.shields.io/badge/FastAPI-async-green) ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Features
 
@@ -90,9 +92,19 @@ Settings come from environment variables (see `.env.example`).
 
 Python, FastAPI, Streamlit, LangChain, ChromaDB, SQLite, Celery, Redis, Prometheus, and Docker. Embeddings use Google text-embedding-004.
 
-## Upgraded version
+## The RagFlow line
 
-RagFlow is the baseline. An upgraded version, RagFlowPro, replaces ChromaDB with pgvector on Postgres, moves memory to Postgres, computes hybrid retrieval in a single SQL query, streams answers, and adds a measurable evaluation harness. See [github.com/mlvpatel/RagFlowPro](https://github.com/mlvpatel/RagFlowPro).
+RagFlowPlus is one rung in a year by year line of enterprise RAG systems, each a faithful snapshot of the best production RAG of its year.
+
+| Year | Repository | Generation |
+|---|---|---|
+| 2022 | RagFlow | Naive RAG, single dense retrieval |
+| 2023 | RagFlowPlus, this repo | Advanced RAG, hybrid retrieval and reranking |
+| 2024 | [RagFlowPro](https://github.com/mlvpatel/RagFlowPro) | Modular production RAG, pgvector, streaming, evaluation |
+| 2025 | RagFlowProPlus, RagFlowKAG | Agentic RAG, knowledge graph with reasoning |
+| 2026 | RagFlowProMax, UltimateRAG | Multi agent enterprise, multimodal |
+
+The next rung up, [RagFlowPro](https://github.com/mlvpatel/RagFlowPro), replaces ChromaDB with pgvector on Postgres, moves memory to Postgres, computes hybrid retrieval in a single SQL query, streams answers, and adds a measurable evaluation harness.
 
 ## License
 
